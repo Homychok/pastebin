@@ -8,6 +8,7 @@ import com.example.pastebin.model.Status;
 import com.example.pastebin.service.PasteService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import java.util.List;
 

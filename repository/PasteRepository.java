@@ -11,7 +11,7 @@ import java.util.List;
 public interface PasteRepository extends JpaRepository<Paste, String>, JpaSpecificationExecutor<Paste> {
     void deleteAllByDataExpiredIsBefore(Instant now);
 
-    @Query(value = "SELECT * FROM table.public.paste t WHERE t.status = 'PUBLIC' " +
-            "ORDER BY t.data_created DESC LIMIT 10;", nativeQuery = true)
+    @Query(value = "SELECT * FROM paste WHERE status = 'PUBLIC' " +
+            "ORDER BY data_created DESC LIMIT 10;", nativeQuery = true)
     List<Paste> findLastTen();
 }
