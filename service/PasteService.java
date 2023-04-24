@@ -11,6 +11,7 @@ import com.example.pastebin.repository.PasteRepository;
 import com.example.pastebin.specification.PasteSpecificashion;
 import org.springframework.stereotype.Service;
 
+import java.security.SecureRandom;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
@@ -24,6 +25,17 @@ public class PasteService {
         this.pasteRepository = pasteRepository;
     }
 
+    // создание уникального ключа
+    public String generatedKey(){
+        SecureRandom secureRandom = new SecureRandom();
+        String alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        StringBuilder sb = new StringBuilder(10);
+        for (int i = 0; i < 10; i++) {
+            int index = secureRandom.nextInt(alphabet.length());
+            sb.append(alphabet.charAt(index));
+        }
+        return "http://my-awesome-pastebin.tld/" + sb;
+    }
     public UrlDTO createPaste(PasteDTO pasteDTO, ExpirationTime expirationTime, Status status) {
 
         if (pasteDTO == null || pasteDTO.getBody() == null || pasteDTO.getBody().isBlank()) {
@@ -31,7 +43,7 @@ public class PasteService {
         }
         Paste paste = PasteDTO.toPaste(pasteDTO);
 
-        paste.setUrl("http://pastebin.tld/" + UUID.randomUUID().toString().substring(0, 7));
+        paste.setUrl(generatedKey());
         if (expirationTime.equals(ExpirationTime.UNLIMITED)) {
             paste.setDataExpired(null);
         } else {
@@ -46,20 +58,17 @@ public class PasteService {
     }
 
     public List<PasteGetDTO> getLastTen() {
-        return pasteRepository.findLastTen().stream()
+        return pasteRepository.findTop10ByStatusAndDataExpiredIsAfterOrderByDataCreatedDesc(Status.PUBLIC, Instant.now()).stream()
                 .map(PasteGetDTO::from).collect(Collectors.toList());
     }
 
     public PasteGetDTO getPaste(String url) {
-        Paste paste = pasteRepository.findById(url).orElseThrow(PasteNotFoundException::new);
+        Paste paste = pasteRepository.findByUrlAndDataExpiredIsAfter(url, Instant.now()).orElseThrow(PasteNotFoundException::new);
         return PasteGetDTO.from(paste);
     }
 
     public List<PasteGetDTO> pastesFoundByText(String titleText, String bodyText) {
-        List<Paste> pasteList = pasteRepository.findAll(PasteSpecificashion.byTitle(titleText)
-                .and(PasteSpecificashion.byBody(bodyText))
-                .and(PasteSpecificashion.byStatus(Status.PUBLIC))
-        );
+        List<Paste> pasteList = pasteRepository.findAllByTitleContainsOrBodyContainsAndStatusAndDataExpiredIsAfter(titleText, bodyText, Status.PUBLIC, Instant.now());
         return pasteList.stream().map(PasteGetDTO::from).collect(Collectors.toList());
     }
 }
