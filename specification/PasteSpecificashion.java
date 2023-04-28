@@ -1,7 +1,7 @@
 package com.example.pastebin.specification;
 
 import com.example.pastebin.model.Paste;
-import com.example.pastebin.model.Status;
+import com.example.pastebin.enums.Status;
 import org.springframework.data.jpa.domain.Specification;
 
 public class PasteSpecificashion {

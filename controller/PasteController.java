@@ -1,20 +1,17 @@
 package com.example.pastebin.controller;
+import com.example.pastebin.dto.CreateDTO;
 import com.example.pastebin.dto.PasteDTO;
 import com.example.pastebin.dto.PasteGetDTO;
 import com.example.pastebin.dto.UrlDTO;
-import com.example.pastebin.exception.PasteNotFoundException;
-import com.example.pastebin.model.ExpirationTime;
-import com.example.pastebin.model.Status;
 import com.example.pastebin.service.PasteService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import java.util.List;
 
 
 @RestController
-@RequestMapping("/")
+@RequestMapping("/my-awesome-pastebin.tld")
 public class PasteController {
 
     private PasteService pasteService;
@@ -22,31 +19,25 @@ public class PasteController {
         this.pasteService = pasteService;
     }
 
-    @PostMapping
-    public ResponseEntity<UrlDTO> createPaste(@RequestBody PasteDTO pasteDTO,
-                                              @RequestParam("expirationTime") ExpirationTime expirationTime,
-                                              @RequestParam("status") Status status){
-        if (pasteDTO == null || pasteDTO.getBody() == null || pasteDTO.getBody().isBlank()) {
-            return ResponseEntity.badRequest().build();
-        }
-        return ResponseEntity.ok(pasteService.createPaste(pasteDTO, expirationTime, status));
+    @PostMapping("/save")
+    public UrlDTO createPaste(@RequestBody CreateDTO createDTO){
+               return pasteService.create(createDTO);
     }
 
-    @GetMapping("last_ten")
+    @GetMapping("/last10")
     public ResponseEntity<List<PasteGetDTO>> getLastTen(){
-        return ResponseEntity.ok(pasteService.getLastTen());
+        return ResponseEntity.ok(pasteService.getTenLast());
     }
 
-    @GetMapping("{url}")
-    public ResponseEntity<PasteGetDTO> getPaste(String url) throws PasteNotFoundException {
-        PasteGetDTO pasteGetDTO = pasteService.getPaste(url);
-        return ResponseEntity.ok(pasteGetDTO);
+    @GetMapping("{id}")
+    public ResponseEntity<PasteDTO> getPaste(@PathVariable String id) {
+        return ResponseEntity.ok(pasteService.getById(id));
     }
 
-    @GetMapping("text")
-    public ResponseEntity<List<PasteGetDTO>> pastesFoundByText(
-            @RequestParam(required = false) String titleText,
-            @RequestParam(required = false) String bodyText){
-        return ResponseEntity.ok(pasteService.pastesFoundByText(titleText, bodyText));
+    @GetMapping("/search")
+    public ResponseEntity<List<PasteDTO>> pastesFoundByText(
+            @RequestParam(required = false) String title,
+            @RequestParam(required = false) String body){
+        return ResponseEntity.ok(pasteService.search(title, body));
     }
 }

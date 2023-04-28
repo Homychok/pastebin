@@ -18,10 +18,9 @@ public class ClearPastes {
         this.pasteRepository = pasteRepository;
     }
 
+    @Scheduled(cron = "0 0 0 * * ?")
     @Transactional
-    @Scheduled(fixedDelay = 60000)
-    public void clearPaste() {
-        log.info("Clearing pastes");
-        pasteRepository.deleteAllByDataExpiredIsBefore(Instant.now());
+    public void clear(){
+        pasteRepository.deleteAll(Instant.now());
     }
 }

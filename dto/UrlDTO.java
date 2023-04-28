@@ -1,12 +1,14 @@
 package com.example.pastebin.dto;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
-@Getter
-@Setter
+@Data
 public class UrlDTO {
 
     private String url;
-
+    public static UrlDTO fromCreateDTO(CreateDTO createDTO){
+        UrlDTO urlDTO = new UrlDTO();
+        urlDTO.setUrl(createDTO.getLink());
+        return urlDTO;
+    }
 }

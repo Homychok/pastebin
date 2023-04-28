@@ -1,4 +1,4 @@
-package com.example.pastebin.model;
+package com.example.pastebin.enums;
 
 public enum Status {
     PUBLIC,
